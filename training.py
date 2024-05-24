@@ -7,7 +7,7 @@ import json
 from PIL import Image
 import numpy as np
 
-size = 32
+size = 128
 
 def load_data(image_dir, json_file):
     with open(os.path.join(image_dir, json_file)) as f:
@@ -56,7 +56,7 @@ model.add(layers.Dense(len(names), activation='softmax'))  # Use softmax for mul
 model.compile(optimizer='adam',
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
-history = model.fit(train_images, train_labels, epochs=2, 
+history = model.fit(train_images, train_labels, epochs=20, 
                     validation_data=(test_images, test_labels))
 
 model.save('my_model.keras')
