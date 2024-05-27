@@ -1,5 +1,25 @@
 import tensorflow as tf
 import numpy as np
+from tensorflow.keras.applications.vgg16 import preprocess_input
+import streamlit as st
+from PIL import Image
+
+# Streamlit setup
+st.set_page_config(
+     page_title="Food Allergy Detector",
+     page_icon="📍",
+     initial_sidebar_state="expanded",
+     menu_items={
+         'About': "Show where you want community improvements!"
+     }
+)
+st.markdown("## A tool to detect if a food is safe to eat")
+
+# Take picture
+picture = st.camera_input("Use camera to take a picture")
+# If the user does not take a photo, import 
+if picture is None:
+    picture = st.file_uploader("Upload an image")
 
 # Load the pre-trained model
 model = tf.keras.models.load_model('my_model.keras')
@@ -23,18 +43,16 @@ def predict(image):
     return predictions
 
 # Main function
-from tensorflow.keras.applications.vgg16 import preprocess_input
-
 def main():
     # Load the image
-    image = tf.keras.preprocessing.image.load_img('croissant.jpg', target_size=(size, size))
+    image = tf.keras.preprocessing.image.load_img('sausage.jpg', target_size=(size, size))
 
     # Convert the image to a numpy array
     image_array = tf.keras.preprocessing.image.img_to_array(image)
 
     # Reshape the image array
     # Reshape the image array to include a batch dimension
-    image_array = image_array.reshape((1, 128, 128, 3))
+    image_array = image_array.reshape((1, size, size, 3))
 
     # Make predictions using the model
     predictions = model.predict(image_array)
