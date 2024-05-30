@@ -19,10 +19,40 @@ def main(picture = None):
     if picture is not None:
         img = Image.open(picture)
         predictions = predict(model, img, size)
+        print(predictions, type(predictions))
+        selection_list = predictions + ["Other"]
+        food = st.selectbox("Which of these are your food?", selection_list)
+        if "Other" in food:
+            food = st.text_input("Please specify your food:")
+            print(food)
+    if food != "":
+        allergies = ["Peanuts", "Tree nuts", "Milk", "Eggs", "Wheat", "Soy", "Fish", "Shellfish", "Other"]
+        selected_allergies = st.multiselect("Select your allergies:", allergies)
 
-    if st.button("Ask why the sky is blue"):
-        response = ask_ollama()
-        st.write(response['message']['content'])
+        if "Other" in selected_allergies:
+            other_allergy = st.text_input("Please specify your other allergies:")
+            selected_allergies.remove("Other")
+            allergies_string = ', '.join(selected_allergies)
+            if other_allergy:
+                if selected_allergies == []:
+                    allergies_string = other_allergy
+                else:
+                    allergies_string += ', ' + other_allergy
+        else:
+            allergies_string = ', '.join(selected_allergies)
+        print(allergies_string)
+        if st.button("Ask if this food is safe"):
+            if allergies_string == '':
+                st.write("Safe!")
+                # NO PROMPT, just write it is safe
+            else:
+                prompt = f"""You are an assistant for people with food allergies. Your job is to take a food and determine whether
+                has specified allergies in it. Never make assumptions that this food was prepared in a allergy safe space. Assume 
+                the food is prepared with normal ingredients. Is the *average* {food} safe to eat if you have a {allergies_string} allergy? Write 1 short sentence."""
+                print(prompt)
+                response = ask_ollama(prompt)
+                st.write(response)
+    
 
 def predict(model, img, size):
     img = img.resize((size, size))
@@ -33,17 +63,18 @@ def predict(model, img, size):
     top3_class_indices = np.argsort(predictions[0])[-3:][::-1]
     top3_classes = [class_names[i] for i in top3_class_indices]
     print(f'The model predicts that the image is most likely of class: {top3_classes[0]}, second most likely: {top3_classes[1]}, third most likely: {top3_classes[2]}')    
-    return predictions
+    return top3_classes
 
-def ask_ollama():
+def ask_ollama(prompt):
+    
     response = ollama.chat(model='llama3', messages=[
     {
         'role': 'user',
-        'content': 'Why is the sky blue? Respond with 1 sentence.',
+        'content': prompt,
     },
     ])
     print(response['message']['content'])
-    return response
+    return response['message']['content']
 
 def draw():
     # Streamlit setup
@@ -57,7 +88,6 @@ def draw():
     )
     st.markdown("## A tool to detect if a food is safe to eat")
 
-@st.cache(allow_output_mutation=True)
 def load_model():
     return tf.keras.models.load_model('my_model.keras')
 
