@@ -5,7 +5,7 @@ import streamlit as st
 from PIL import Image
 import ollama
 
-def main(picture = None):
+def main(picture = None, food = ""):
     model = load_model()
     size = 128
     # Draws what always is on screen
@@ -13,11 +13,12 @@ def main(picture = None):
 
     # Take picture
     if picture is None:
-        picture = st.camera_input("Use camera to take a picture")
+        #picture = st.camera_input("Use camera to take a picture")
         picture = st.file_uploader("Upload an image")
 
     if picture is not None:
         img = Image.open(picture)
+        st.image(img)
         predictions = predict(model, img, size)
         print(predictions, type(predictions))
         selection_list = predictions + ["Other"]
@@ -59,9 +60,16 @@ def predict(model, img, size):
     img = np.array(img)
     img = img.reshape((1, size, size, 3))
     predictions = model.predict(img)
-    class_names = ['class1', 'class2', 'class3', 'class4', 'class5', 'class6', 'class7', 'class8', 'class9', 'class10', 'class11', 'class12', 'class13', 'class14', 'class15', 'class16', 'class17', 'class18', 'class19', 'class20', 'class21', 'class22', 'class23', 'class24', 'class25', 'class26', 'class27', 'class28', 'class29']
+    class_names = ['Japanese tofu and vegetable chowder', 'beef curry', 'beef steak',
+                    'boiled chicken and vegetables', 'chinese soup', 'croissant', 
+                    'croquette', 'egg roll', 'egg sunny-side up', 'french fries', 
+                    'fried chicken', 'fried fish', 'fried noodle', 'fried rice', 
+                    'green salad', 'grilled eggplant', 'hamburger', 'hot dog',
+                    'macaroni salad', 'miso soup', 'pizza', 'potato salad',
+                    'raisin bread', 'rice', 'roast chicken', 'sandwiches', 'sausage',
+                    'sauteed spinach']
     top3_class_indices = np.argsort(predictions[0])[-3:][::-1]
-    top3_classes = [class_names[i] for i in top3_class_indices]
+    top3_classes = [class_names[i-1] for i in top3_class_indices]
     print(f'The model predicts that the image is most likely of class: {top3_classes[0]}, second most likely: {top3_classes[1]}, third most likely: {top3_classes[2]}')    
     return top3_classes
 
