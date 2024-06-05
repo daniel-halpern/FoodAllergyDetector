@@ -88,11 +88,8 @@ def draw():
     # Streamlit setup
     st.set_page_config(
         page_title="Food Allergy Detector",
-        page_icon="📍",
+        page_icon="🍕",
         initial_sidebar_state="expanded",
-        menu_items={
-            'About': "Show where you want community improvements!"
-        }
     )
     st.markdown("## A tool to detect if a food is safe to eat")
 
