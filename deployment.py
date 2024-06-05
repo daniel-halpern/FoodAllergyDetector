@@ -4,6 +4,8 @@ from tensorflow.keras.applications.vgg16 import preprocess_input
 import streamlit as st
 from PIL import Image
 import ollama
+from langchain.llms import Ollama
+llm = Ollama(model="llama3")
 
 def main(picture = None, food = ""):
     model = load_model()
@@ -50,8 +52,8 @@ def main(picture = None, food = ""):
                 prompt = f"""You are an assistant for people with food allergies. Your job is to take a food and determine whether
                 has specified allergies in it. Never make assumptions that this food was prepared in a allergy safe space. Assume 
                 the food is prepared with normal ingredients. Is the *average* {food} safe to eat if you have a {allergies_string} allergy? Write 1 short sentence."""
-                print(prompt)
-                response = ask_ollama(prompt)
+                response = llm.predict(prompt)
+                #response = ask_ollama(prompt)
                 st.write(response)
     
 
